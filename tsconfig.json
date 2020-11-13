@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "removeComments": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "strictPropertyInitialization": true,
+    "target": "es2019",
+    "lib": ["es2019"],
+    "sourceMap": true,
+    "outDir": "./dist",
+    "incremental": true
+  },
+  "include": [
+    "src/**/*"
+  ]
+}
