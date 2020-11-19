@@ -5,6 +5,16 @@
 
 import { PokemonAttack } from './pokemon/models/PokemonAttack';
 import { Pokemon } from './pokemon/models/Pokemon';
+import { core, connectionPluginCore } from '@nexus/schema';
+
+declare global {
+  interface NexusGenCustomOutputMethods<TypeName extends string> {
+    connectionField<FieldName extends string>(
+      fieldName: FieldName,
+      config: connectionPluginCore.ConnectionFieldConfig<TypeName, FieldName>,
+    ): void;
+  }
+}
 
 declare global {
   interface NexusGen extends NexusGenTypes {}
@@ -23,6 +33,13 @@ export interface NexusGenScalars {
 }
 
 export interface NexusGenRootTypes {
+  PageInfo: {
+    // root type
+    endCursor?: string | null; // String
+    hasNextPage: boolean; // Boolean!
+    hasPreviousPage: boolean; // Boolean!
+    startCursor?: string | null; // String
+  };
   PhysicalQuantity: {
     // root type
     maximum?: string | null; // String
@@ -30,7 +47,19 @@ export interface NexusGenRootTypes {
   };
   Pokemon: Pokemon;
   PokemonAttack: PokemonAttack;
+  PokemonEdge: {
+    // root type
+    cursor: string; // String!
+    node?: NexusGenRootTypes['Pokemon'] | null; // Pokemon
+  };
   Query: {};
+  QueryPokemons_Connection: {
+    // root type
+    edges?: Array<NexusGenRootTypes['PokemonEdge'] | null> | null; // [PokemonEdge]
+    nodes?: Array<NexusGenRootTypes['Pokemon'] | null> | null; // [Pokemon]
+    pageInfo: NexusGenRootTypes['PageInfo']; // PageInfo!
+    totalCount?: number | null; // Int
+  };
   Node: NexusGenRootTypes['Pokemon'] | NexusGenRootTypes['PokemonAttack'];
 }
 
@@ -43,6 +72,13 @@ export interface NexusGenAllTypes extends NexusGenRootTypes {
 }
 
 export interface NexusGenFieldTypes {
+  PageInfo: {
+    // field return type
+    endCursor: string | null; // String
+    hasNextPage: boolean; // Boolean!
+    hasPreviousPage: boolean; // Boolean!
+    startCursor: string | null; // String
+  };
   PhysicalQuantity: {
     // field return type
     maximum: string | null; // String
@@ -73,9 +109,23 @@ export interface NexusGenFieldTypes {
     pokemon: NexusGenRootTypes['Pokemon']; // Pokemon!
     type: string; // String!
   };
+  PokemonEdge: {
+    // field return type
+    cursor: string; // String!
+    node: NexusGenRootTypes['Pokemon'] | null; // Pokemon
+  };
   Query: {
     // field return type
     pokemon: NexusGenRootTypes['Pokemon'] | null; // Pokemon
+    pokemons: NexusGenRootTypes['QueryPokemons_Connection'] | null; // QueryPokemons_Connection
+    pokemonTypes: string[]; // [String!]!
+  };
+  QueryPokemons_Connection: {
+    // field return type
+    edges: Array<NexusGenRootTypes['PokemonEdge'] | null> | null; // [PokemonEdge]
+    nodes: Array<NexusGenRootTypes['Pokemon'] | null> | null; // [Pokemon]
+    pageInfo: NexusGenRootTypes['PageInfo']; // PageInfo!
+    totalCount: number | null; // Int
   };
   Node: {
     // field return type
@@ -84,6 +134,13 @@ export interface NexusGenFieldTypes {
 }
 
 export interface NexusGenFieldTypeNames {
+  PageInfo: {
+    // field return type name
+    endCursor: 'String';
+    hasNextPage: 'Boolean';
+    hasPreviousPage: 'Boolean';
+    startCursor: 'String';
+  };
   PhysicalQuantity: {
     // field return type name
     maximum: 'String';
@@ -114,9 +171,23 @@ export interface NexusGenFieldTypeNames {
     pokemon: 'Pokemon';
     type: 'String';
   };
+  PokemonEdge: {
+    // field return type name
+    cursor: 'String';
+    node: 'Pokemon';
+  };
   Query: {
     // field return type name
     pokemon: 'Pokemon';
+    pokemons: 'QueryPokemons_Connection';
+    pokemonTypes: 'String';
+  };
+  QueryPokemons_Connection: {
+    // field return type name
+    edges: 'PokemonEdge';
+    nodes: 'Pokemon';
+    pageInfo: 'PageInfo';
+    totalCount: 'Int';
   };
   Node: {
     // field return type name
@@ -132,6 +203,13 @@ export interface NexusGenArgTypes {
       id?: string | null; // ID
       name?: string | null; // String
     };
+    pokemons: {
+      // args
+      after?: string | null; // String
+      first: number; // Int!
+      name?: string | null; // String
+      type?: string | null; // String
+    };
   };
 }
 
@@ -142,10 +220,13 @@ export interface NexusGenAbstractResolveReturnTypes {
 export interface NexusGenInheritedFields {}
 
 export type NexusGenObjectNames =
+  | 'PageInfo'
   | 'PhysicalQuantity'
   | 'Pokemon'
   | 'PokemonAttack'
-  | 'Query';
+  | 'PokemonEdge'
+  | 'Query'
+  | 'QueryPokemons_Connection';
 
 export type NexusGenInputNames = never;
 

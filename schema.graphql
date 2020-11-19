@@ -11,6 +11,31 @@ interface Node {
   id: ID!
 }
 
+"""
+PageInfo cursor, as defined in https://facebook.github.io/relay/graphql/connections.htm#sec-undefined.PageInfo
+"""
+type PageInfo {
+  """
+  The cursor corresponding to the last nodes in edges. Null if the connection is empty.
+  """
+  endCursor: String
+
+  """
+  Used to indicate whether more edges exist following the set defined by the clients arguments.
+  """
+  hasNextPage: Boolean!
+
+  """
+  Used to indicate whether more edges exist prior to the set defined by the clients arguments.
+  """
+  hasPreviousPage: Boolean!
+
+  """
+  The cursor corresponding to the first nodes in edges. Null if the connection is empty.
+  """
+  startCursor: String
+}
+
 type PhysicalQuantity {
   maximum: String
   minimum: String
@@ -105,6 +130,62 @@ type PokemonAttack implements Node {
   type: String!
 }
 
+type PokemonEdge {
+  """
+  https://facebook.github.io/relay/graphql/connections.htm#sec-Cursor
+  """
+  cursor: String!
+
+  """
+  https://facebook.github.io/relay/graphql/connections.htm#sec-Node
+  """
+  node: Pokemon
+}
+
 type Query {
   pokemon(code: String, id: ID, name: String): Pokemon
+  pokemons(
+    """
+    Returns the elements in the list that come after the specified cursor
+    """
+    after: String
+
+    """
+    Returns the first n elements from the list.
+    """
+    first: Int!
+
+    """
+    Search by pokemon name
+    """
+    name: String
+
+    """
+    Filter by pokemon type
+    """
+    type: String
+  ): QueryPokemons_Connection
+  pokemonTypes: [String!]!
+}
+
+type QueryPokemons_Connection {
+  """
+  https://facebook.github.io/relay/graphql/connections.htm#sec-Edge-Types
+  """
+  edges: [PokemonEdge]
+
+  """
+  Flattened list of Pokemon type
+  """
+  nodes: [Pokemon]
+
+  """
+  https://facebook.github.io/relay/graphql/connections.htm#sec-undefined.PageInfo
+  """
+  pageInfo: PageInfo!
+
+  """
+  Identifies the total count of items in the connection.
+  """
+  totalCount: Int
 }

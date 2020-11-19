@@ -1,8 +1,9 @@
 import path from 'path';
 import { idArg, objectType, queryField, stringArg } from '@nexus/schema';
-import { fetchPokemonRelation, findPokemonById, findPokemonByName } from './pokemon.repository';
-import batchResolver from '../utils/batch-resolver';
+import { fetchPokemonRelation, findForConnection, findPokemonById, findPokemonByName } from './pokemon.repository';
 import { fetchAttackRelation } from './pokemon-attack.repository';
+import { fetchAllTypes } from './pokemon-type.repository';
+import batchResolver from '../utils/batch-resolver';
 import { fromGlobalId } from '../utils/global-id';
 
 export const PokemonAttack = objectType({
@@ -178,4 +179,29 @@ export const pokemonQuery = queryField('pokemon', {
     }
     return null;
   },
+});
+
+export const pokemonsQuery = queryField(t => t.connectionField('pokemons', {
+  type: 'Pokemon',
+  additionalArgs: {
+    name: stringArg({ description: 'Search by pokemon name' }),
+    type: stringArg({ description: 'Filter by pokemon type' })
+  },
+  extendConnection(t) {
+    t.int('totalCount', {
+      description: 'Identifies the total count of items in the connection.',
+    });
+  },
+  resolve(root, args) {
+    return findForConnection(args);
+  }
+}));
+
+export const pokemonTypesQuery = queryField('pokemonTypes', {
+  type: 'String',
+  list: true,
+  nullable: false,
+  resolve() {
+    return fetchAllTypes();
+  }
 });
