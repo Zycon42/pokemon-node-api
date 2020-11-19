@@ -5,11 +5,13 @@
   "scripts": {
     "build": "rimraf dist && tsc",
     "start": "node dist/main.js",
-    "start:dev": "tsc-watch --onSuccess \"node ./dist/main.js\"",
+    "start:dev": "ts-node-dev -T --respawn --no-notify -- ./src/main.ts",
+    "start:debug": "ts-node-dev -T --inspect-brk --respawn --no-notify -- ./src/main.ts",
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "eslint 'src/**/*.ts'"
   },
   "devDependencies": {
+    "@types/dotenv-safe": "^8.1.1",
     "@types/node": "^14.14.7",
     "@typescript-eslint/eslint-plugin": "^4.7.0",
     "@typescript-eslint/parser": "^4.7.0",
@@ -20,14 +22,20 @@
     "pino-pretty": "^4.3.0",
     "prettier": "^2.1.2",
     "rimraf": "^3.0.2",
-    "tsc-watch": "^4.2.9",
+    "ts-node-dev": "1.0.0-pre.65",
     "typescript": "^4.0.5"
   },
   "dependencies": {
     "@nexus/schema": "^0.18.0",
+    "dataloader": "^2.0.0",
+    "dotenv-safe": "^8.2.0",
     "fastify": "^3.8.0",
+    "fastify-plugin": "^3.0.0",
     "graphql": "^15.4.0",
-    "mercurius": "^6.4.0"
+    "knex": "^0.21.12",
+    "mercurius": "^6.4.0",
+    "objection": "^2.2.3",
+    "pg": "^8.5.1"
   },
   "lint-staged": {
     "src/**/*.{ts,tsx}": [

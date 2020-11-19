@@ -3,6 +3,9 @@
  * Do not make changes to this file directly
  */
 
+import { PokemonAttack } from './pokemon/models/PokemonAttack';
+import { Pokemon } from './pokemon/models/Pokemon';
+
 declare global {
   interface NexusGen extends NexusGenTypes {}
 }
@@ -20,12 +23,15 @@ export interface NexusGenScalars {
 }
 
 export interface NexusGenRootTypes {
-  Pokemon: {
+  PhysicalQuantity: {
     // root type
-    id: string; // ID!
-    name: string; // String!
+    maximum?: string | null; // String
+    minimum?: string | null; // String
   };
+  Pokemon: Pokemon;
+  PokemonAttack: PokemonAttack;
   Query: {};
+  Node: NexusGenRootTypes['Pokemon'] | NexusGenRootTypes['PokemonAttack'];
 }
 
 export interface NexusGenAllTypes extends NexusGenRootTypes {
@@ -37,26 +43,84 @@ export interface NexusGenAllTypes extends NexusGenRootTypes {
 }
 
 export interface NexusGenFieldTypes {
+  PhysicalQuantity: {
+    // field return type
+    maximum: string | null; // String
+    minimum: string | null; // String
+  };
   Pokemon: {
     // field return type
+    attacks: NexusGenRootTypes['PokemonAttack'][] | null; // [PokemonAttack!]
+    classification: string | null; // String
+    code: string; // String!
+    fleeRate: number | null; // Float
+    height: NexusGenRootTypes['PhysicalQuantity'] | null; // PhysicalQuantity
+    id: string; // ID!
+    maxCp: number | null; // Int
+    maxHp: number | null; // Int
+    name: string; // String!
+    resistantTo: string[] | null; // [String!]
+    types: string[] | null; // [String!]
+    weaknesses: string[] | null; // [String!]
+    weight: NexusGenRootTypes['PhysicalQuantity'] | null; // PhysicalQuantity
+  };
+  PokemonAttack: {
+    // field return type
+    category: string; // String!
+    damage: number; // Int!
     id: string; // ID!
     name: string; // String!
+    pokemon: NexusGenRootTypes['Pokemon']; // Pokemon!
+    type: string; // String!
   };
   Query: {
     // field return type
     pokemon: NexusGenRootTypes['Pokemon'] | null; // Pokemon
   };
+  Node: {
+    // field return type
+    id: string; // ID!
+  };
 }
 
 export interface NexusGenFieldTypeNames {
+  PhysicalQuantity: {
+    // field return type name
+    maximum: 'String';
+    minimum: 'String';
+  };
   Pokemon: {
     // field return type name
+    attacks: 'PokemonAttack';
+    classification: 'String';
+    code: 'String';
+    fleeRate: 'Float';
+    height: 'PhysicalQuantity';
+    id: 'ID';
+    maxCp: 'Int';
+    maxHp: 'Int';
+    name: 'String';
+    resistantTo: 'String';
+    types: 'String';
+    weaknesses: 'String';
+    weight: 'PhysicalQuantity';
+  };
+  PokemonAttack: {
+    // field return type name
+    category: 'String';
+    damage: 'Int';
     id: 'ID';
     name: 'String';
+    pokemon: 'Pokemon';
+    type: 'String';
   };
   Query: {
     // field return type name
     pokemon: 'Pokemon';
+  };
+  Node: {
+    // field return type name
+    id: 'ID';
   };
 }
 
@@ -64,22 +128,30 @@ export interface NexusGenArgTypes {
   Query: {
     pokemon: {
       // args
-      id: string; // ID!
+      code?: string | null; // String
+      id?: string | null; // ID
+      name?: string | null; // String
     };
   };
 }
 
-export interface NexusGenAbstractResolveReturnTypes {}
+export interface NexusGenAbstractResolveReturnTypes {
+  Node: 'Pokemon' | 'PokemonAttack';
+}
 
 export interface NexusGenInheritedFields {}
 
-export type NexusGenObjectNames = 'Pokemon' | 'Query';
+export type NexusGenObjectNames =
+  | 'PhysicalQuantity'
+  | 'Pokemon'
+  | 'PokemonAttack'
+  | 'Query';
 
 export type NexusGenInputNames = never;
 
 export type NexusGenEnumNames = never;
 
-export type NexusGenInterfaceNames = never;
+export type NexusGenInterfaceNames = 'Node';
 
 export type NexusGenScalarNames = 'Boolean' | 'Float' | 'ID' | 'Int' | 'String';
 

@@ -2,17 +2,109 @@
 ### Do not make changes to this file directly
 
 """
+An object with an ID
+"""
+interface Node {
+  """
+  The ID of an object
+  """
+  id: ID!
+}
+
+type PhysicalQuantity {
+  maximum: String
+  minimum: String
+}
+
+"""
 Pokemon species
 """
-type Pokemon {
+type Pokemon implements Node {
+  """
+  The attacks this species can make
+  """
+  attacks: [PokemonAttack!]
+
+  """
+  Pokemon classification
+  """
+  classification: String
+
+  """
+  The unique ID amongs pokemon species
+  """
+  code: String!
+  fleeRate: Float
+
+  """
+  The height of adult members of species
+  """
+  height: PhysicalQuantity
+
+  """
+  The ID of an object
+  """
   id: ID!
+  maxCp: Int
+  maxHp: Int
 
   """
   Unique pokemon species name
   """
   name: String!
+
+  """
+  This pokemon is resistant to these attack types
+  """
+  resistantTo: [String!]
+
+  """
+  The types of this pokemon species
+  """
+  types: [String!]
+
+  """
+  This pokemon has weakness to these attack types
+  """
+  weaknesses: [String!]
+
+  """
+  The weight of adult members of species
+  """
+  weight: PhysicalQuantity
+}
+
+"""
+The attack pokemon can perform
+"""
+type PokemonAttack implements Node {
+  """
+  Attack category
+  """
+  category: String!
+
+  """
+  Damage on HP this attack does
+  """
+  damage: Int!
+
+  """
+  The ID of an object
+  """
+  id: ID!
+
+  """
+  Name of a attack. Is unique among this species attacks.
+  """
+  name: String!
+  pokemon: Pokemon!
+
+  """
+  Attack type
+  """
+  type: String!
 }
 
 type Query {
-  pokemon(id: ID!): Pokemon
+  pokemon(code: String, id: ID, name: String): Pokemon
 }

@@ -1,3 +1,4 @@
 /dist
 /.pnp.js
+/knexfile.js
 /src/schema-types.d.ts

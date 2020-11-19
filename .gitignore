@@ -8,3 +8,6 @@
 
 # Build artifacts
 /dist/
+
+# Secrets
+.env

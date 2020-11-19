@@ -1,33 +1,36 @@
+/// <reference path="./schema-types.d.ts" />
+import './load-config';
 import path from 'path';
 import { makeSchema } from '@nexus/schema';
-import Fastify from 'fastify';
 import mercurius from 'mercurius';
+import app from './app';
+import { configureDb } from './config/db';
+import context from './context';
 
 import * as pokemonSchema from './pokemon/pokemon.schema';
-
-const isProdEnv = process.env.NODE_ENV === 'production';
-
-const app = Fastify({
-  logger: {
-    prettyPrint: !isProdEnv,
-    level: isProdEnv ? 'info' : 'debug',
-  },
-});
+import * as commonSchema from './common/common.schema';
 
 process.on('unhandledRejection', (reason, p) => {
-  app.log.error({ err: reason, promise: p }, 'Unhandled promise rejection');
+  app.log.fatal({ err: reason, promise: p }, 'Unhandled promise rejection');
+  process.exit(1);
 });
 
 async function bootstrap() {
   const schema = makeSchema({
-    types: [pokemonSchema],
+    types: [pokemonSchema, commonSchema],
     outputs: {
       schema: path.join(__dirname, '../schema.graphql'),
-      typegen: path.join(__dirname, '../src/schema-types.d.ts'),
+      typegen: path.join(__dirname, './schema-types.d.ts'),
     },
     prettierConfig: path.join(__dirname, '../.prettierrc'),
   });
   app.register(mercurius, { schema, graphiql: 'playground' });
+
+  app.register(context);
+  const knex = configureDb(app);
+  app.addHook('onClose', (server, done) => {
+    knex.destroy(done);
+  });
 
   const port = process.env.PORT || 4000;
   await app.listen(port);
