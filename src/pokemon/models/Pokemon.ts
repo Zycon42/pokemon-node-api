@@ -60,6 +60,7 @@ export class Pokemon extends BaseModel {
   fleeRate!: number | null;
   maxCp!: number | null;
   maxHp!: number | null;
+  isFavorite!: boolean;
 
   get height() {
     return {

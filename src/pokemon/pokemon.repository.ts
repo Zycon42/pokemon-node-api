@@ -28,6 +28,7 @@ interface ConnectionArgs {
   after?: string | null;
   name?: string | null;
   type?: string | null;
+  isFavorite?: boolean | null;
 }
 
 export async function findForConnection(args: ConnectionArgs) {
@@ -35,6 +36,10 @@ export async function findForConnection(args: ConnectionArgs) {
 
   if (args.type != null) {
     query.joinRelated('types').where('types.name', args.type);
+  }
+
+  if (args.isFavorite != null) {
+    query.where('isFavorite', args.isFavorite);
   }
 
   if (args.name != null) {

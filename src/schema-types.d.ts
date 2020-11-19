@@ -20,7 +20,12 @@ declare global {
   interface NexusGen extends NexusGenTypes {}
 }
 
-export interface NexusGenInputs {}
+export interface NexusGenInputs {
+  ToggleFavoriteInput: {
+    // input type
+    pokemonId: string; // ID!
+  };
+}
 
 export interface NexusGenEnums {}
 
@@ -33,6 +38,7 @@ export interface NexusGenScalars {
 }
 
 export interface NexusGenRootTypes {
+  Mutation: {};
   PageInfo: {
     // root type
     endCursor?: string | null; // String
@@ -60,10 +66,15 @@ export interface NexusGenRootTypes {
     pageInfo: NexusGenRootTypes['PageInfo']; // PageInfo!
     totalCount?: number | null; // Int
   };
+  ToggleFavoritePayload: {
+    // root type
+    pokemon: NexusGenRootTypes['Pokemon']; // Pokemon!
+  };
   Node: NexusGenRootTypes['Pokemon'] | NexusGenRootTypes['PokemonAttack'];
 }
 
 export interface NexusGenAllTypes extends NexusGenRootTypes {
+  ToggleFavoriteInput: NexusGenInputs['ToggleFavoriteInput'];
   String: NexusGenScalars['String'];
   Int: NexusGenScalars['Int'];
   Float: NexusGenScalars['Float'];
@@ -72,6 +83,10 @@ export interface NexusGenAllTypes extends NexusGenRootTypes {
 }
 
 export interface NexusGenFieldTypes {
+  Mutation: {
+    // field return type
+    toggleFavorite: NexusGenRootTypes['ToggleFavoritePayload'] | null; // ToggleFavoritePayload
+  };
   PageInfo: {
     // field return type
     endCursor: string | null; // String
@@ -92,6 +107,7 @@ export interface NexusGenFieldTypes {
     fleeRate: number | null; // Float
     height: NexusGenRootTypes['PhysicalQuantity'] | null; // PhysicalQuantity
     id: string; // ID!
+    isFavorite: boolean; // Boolean!
     maxCp: number | null; // Int
     maxHp: number | null; // Int
     name: string; // String!
@@ -127,6 +143,10 @@ export interface NexusGenFieldTypes {
     pageInfo: NexusGenRootTypes['PageInfo']; // PageInfo!
     totalCount: number | null; // Int
   };
+  ToggleFavoritePayload: {
+    // field return type
+    pokemon: NexusGenRootTypes['Pokemon']; // Pokemon!
+  };
   Node: {
     // field return type
     id: string; // ID!
@@ -134,6 +154,10 @@ export interface NexusGenFieldTypes {
 }
 
 export interface NexusGenFieldTypeNames {
+  Mutation: {
+    // field return type name
+    toggleFavorite: 'ToggleFavoritePayload';
+  };
   PageInfo: {
     // field return type name
     endCursor: 'String';
@@ -154,6 +178,7 @@ export interface NexusGenFieldTypeNames {
     fleeRate: 'Float';
     height: 'PhysicalQuantity';
     id: 'ID';
+    isFavorite: 'Boolean';
     maxCp: 'Int';
     maxHp: 'Int';
     name: 'String';
@@ -189,6 +214,10 @@ export interface NexusGenFieldTypeNames {
     pageInfo: 'PageInfo';
     totalCount: 'Int';
   };
+  ToggleFavoritePayload: {
+    // field return type name
+    pokemon: 'Pokemon';
+  };
   Node: {
     // field return type name
     id: 'ID';
@@ -196,6 +225,12 @@ export interface NexusGenFieldTypeNames {
 }
 
 export interface NexusGenArgTypes {
+  Mutation: {
+    toggleFavorite: {
+      // args
+      input: NexusGenInputs['ToggleFavoriteInput']; // ToggleFavoriteInput!
+    };
+  };
   Query: {
     pokemon: {
       // args
@@ -207,6 +242,7 @@ export interface NexusGenArgTypes {
       // args
       after?: string | null; // String
       first: number; // Int!
+      isFavorite?: boolean | null; // Boolean
       name?: string | null; // String
       type?: string | null; // String
     };
@@ -220,15 +256,17 @@ export interface NexusGenAbstractResolveReturnTypes {
 export interface NexusGenInheritedFields {}
 
 export type NexusGenObjectNames =
+  | 'Mutation'
   | 'PageInfo'
   | 'PhysicalQuantity'
   | 'Pokemon'
   | 'PokemonAttack'
   | 'PokemonEdge'
   | 'Query'
-  | 'QueryPokemons_Connection';
+  | 'QueryPokemons_Connection'
+  | 'ToggleFavoritePayload';
 
-export type NexusGenInputNames = never;
+export type NexusGenInputNames = 'ToggleFavoriteInput';
 
 export type NexusGenEnumNames = never;
 

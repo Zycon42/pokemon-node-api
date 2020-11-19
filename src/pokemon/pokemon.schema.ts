@@ -1,10 +1,25 @@
 import path from 'path';
-import { idArg, objectType, queryField, stringArg } from '@nexus/schema';
-import { fetchPokemonRelation, findForConnection, findPokemonById, findPokemonByName } from './pokemon.repository';
+import {
+  arg,
+  booleanArg,
+  idArg,
+  inputObjectType,
+  mutationField,
+  objectType,
+  queryField,
+  stringArg,
+} from '@nexus/schema';
+import {
+  fetchPokemonRelation,
+  findForConnection,
+  findPokemonById,
+  findPokemonByName,
+} from './pokemon.repository';
 import { fetchAttackRelation } from './pokemon-attack.repository';
 import { fetchAllTypes } from './pokemon-type.repository';
 import batchResolver from '../utils/batch-resolver';
 import { fromGlobalId } from '../utils/global-id';
+import { toggleFavorite } from './pokemon.commands';
 
 export const PokemonAttack = objectType({
   name: 'PokemonAttack',
@@ -72,7 +87,7 @@ export const Pokemon = objectType({
       description: 'The unique ID amongs pokemon species',
       resolve(root) {
         return root.id.toString();
-      }
+      },
     });
     t.string('name', {
       description: 'Unique pokemon species name',
@@ -90,6 +105,7 @@ export const Pokemon = objectType({
     t.float('fleeRate');
     t.int('maxCp');
     t.int('maxHp');
+    t.boolean('isFavorite', { nullable: false });
     t.string('types', {
       list: [true],
       description: 'The types of this pokemon species',
@@ -154,15 +170,18 @@ export const PhysicalQuantity = objectType({
 
 export const pokemonQuery = queryField('pokemon', {
   type: 'Pokemon',
-  args: { 
+  args: {
     id: idArg(),
     code: stringArg(),
     name: stringArg(),
   },
   async resolve(root, { id, code, name }) {
-    const argsCount = Number(id != null) + Number(code != null) + Number(name != null);
+    const argsCount =
+      Number(id != null) + Number(code != null) + Number(name != null);
     if (argsCount !== 1) {
-      throw new Error('Exactly one of id, code, name arguments must be provided');
+      throw new Error(
+        'Exactly one of id, code, name arguments must be provided',
+      );
     }
     if (id != null) {
       const globalId = fromGlobalId(id);
@@ -181,21 +200,24 @@ export const pokemonQuery = queryField('pokemon', {
   },
 });
 
-export const pokemonsQuery = queryField(t => t.connectionField('pokemons', {
-  type: 'Pokemon',
-  additionalArgs: {
-    name: stringArg({ description: 'Search by pokemon name' }),
-    type: stringArg({ description: 'Filter by pokemon type' })
-  },
-  extendConnection(t) {
-    t.int('totalCount', {
-      description: 'Identifies the total count of items in the connection.',
-    });
-  },
-  resolve(root, args) {
-    return findForConnection(args);
-  }
-}));
+export const pokemonsQuery = queryField((t) =>
+  t.connectionField('pokemons', {
+    type: 'Pokemon',
+    additionalArgs: {
+      name: stringArg({ description: 'Search by pokemon name' }),
+      type: stringArg({ description: 'Filter by pokemon type' }),
+      isFavorite: booleanArg({ description: 'Filters by favorite' }),
+    },
+    extendConnection(t) {
+      t.int('totalCount', {
+        description: 'Identifies the total count of items in the connection.',
+      });
+    },
+    resolve(root, args) {
+      return findForConnection(args);
+    },
+  }),
+);
 
 export const pokemonTypesQuery = queryField('pokemonTypes', {
   type: 'String',
@@ -203,5 +225,33 @@ export const pokemonTypesQuery = queryField('pokemonTypes', {
   nullable: false,
   resolve() {
     return fetchAllTypes();
+  },
+});
+
+export const ToggleFavoriteInput = inputObjectType({
+  name: 'ToggleFavoriteInput',
+  definition(t) {
+    t.id('pokemonId', { required: true });
+  }
+});
+
+export const ToggleFavoritePayload = objectType({
+  name: 'ToggleFavoritePayload',
+  definition(t) {
+    t.field('pokemon', { type: 'Pokemon', nullable: false, description: 'Updated pokemon' })
+  }
+})
+
+export const toggleFavoriteMutation = mutationField('toggleFavorite', {
+  type: 'ToggleFavoritePayload',
+  args: {
+    input: arg({ type: 'ToggleFavoriteInput', required: true })
+  },
+  resolve(root, { input: { pokemonId } }) {
+    const { id, type } = fromGlobalId(pokemonId);
+    if (type !== 'Pokemon') {
+      throw new Error('Invalid cursor');
+    }
+    return toggleFavorite(id);
   }
 });
