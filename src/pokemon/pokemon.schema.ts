@@ -4,11 +4,13 @@ import {
   booleanArg,
   idArg,
   inputObjectType,
+  list,
   mutationField,
+  nonNull,
   objectType,
   queryField,
   stringArg,
-} from '@nexus/schema';
+} from 'nexus';
 import {
   fetchPokemonRelation,
   findForConnection,
@@ -24,15 +26,14 @@ import { toggleFavorite } from './pokemon.commands';
 export const PokemonAttack = objectType({
   name: 'PokemonAttack',
   description: 'The attack pokemon can perform',
-  rootTyping: {
-    path: path.join(__dirname, './models/PokemonAttack.ts'),
-    name: 'PokemonAttack',
+  sourceType: {
+    module: path.join(__dirname, './models/PokemonAttack.ts'),
+    export: 'PokemonAttack',
   },
   definition(t) {
     t.implements('Node');
-    t.field('pokemon', {
+    t.nonNull.field('pokemon', {
       type: 'Pokemon',
-      nullable: false,
       resolve: batchResolver(async (sources) => {
         return await fetchAttackRelation(
           sources.map(({ source }) => source),
@@ -40,12 +41,10 @@ export const PokemonAttack = objectType({
         );
       }),
     });
-    t.string('name', {
-      nullable: false,
+    t.nonNull.string('name', {
       description: 'Name of a attack. Is unique among this species attacks.',
     });
-    t.string('category', {
-      nullable: false,
+    t.nonNull.string('category', {
       description: 'Attack category',
       resolve: batchResolver(async (sources) => {
         const categories = await fetchAttackRelation(
@@ -55,8 +54,7 @@ export const PokemonAttack = objectType({
         return categories.map((category) => category.name);
       }),
     });
-    t.string('type', {
-      nullable: false,
+    t.nonNull.string('type', {
       description: 'Attack type',
       resolve: batchResolver(async (sources) => {
         const types = await fetchAttackRelation(
@@ -66,9 +64,8 @@ export const PokemonAttack = objectType({
         return types.map((type) => type.name);
       }),
     });
-    t.int('damage', {
+    t.nonNull.int('damage', {
       description: 'Damage on HP this attack does',
-      nullable: false,
     });
   },
 });
@@ -76,22 +73,20 @@ export const PokemonAttack = objectType({
 export const Pokemon = objectType({
   name: 'Pokemon',
   description: 'Pokemon species',
-  rootTyping: {
-    path: path.join(__dirname, './models/Pokemon.ts'),
-    name: 'Pokemon',
+  sourceType: {
+    module: path.join(__dirname, './models/Pokemon.ts'),
+    export: 'Pokemon',
   },
   definition(t) {
     t.implements('Node');
-    t.string('code', {
-      nullable: false,
+    t.nonNull.string('code', {
       description: 'The unique ID amongs pokemon species',
       resolve(root) {
         return root.id.toString();
       },
     });
-    t.string('name', {
+    t.nonNull.string('name', {
       description: 'Unique pokemon species name',
-      nullable: false,
     });
     t.string('classification', { description: 'Pokemon classification' });
     t.field('height', {
@@ -105,9 +100,9 @@ export const Pokemon = objectType({
     t.float('fleeRate');
     t.int('maxCp');
     t.int('maxHp');
-    t.boolean('isFavorite', { nullable: false });
-    t.string('types', {
-      list: [true],
+    t.nonNull.boolean('isFavorite');
+    t.field('types', {
+      type: list(nonNull('String')),
       description: 'The types of this pokemon species',
       resolve: batchResolver(async (sources) => {
         const types = await fetchPokemonRelation(
@@ -117,8 +112,8 @@ export const Pokemon = objectType({
         return types.map((types) => types.map((type) => type.name));
       }),
     });
-    t.string('resistantTo', {
-      list: [true],
+    t.field('resistantTo', {
+      type: list(nonNull('String')),
       description: 'This pokemon is resistant to these attack types',
       resolve: batchResolver(async (sources) => {
         const types = await fetchPokemonRelation(
@@ -128,8 +123,8 @@ export const Pokemon = objectType({
         return types.map((types) => types.map((type) => type.name));
       }),
     });
-    t.string('weaknesses', {
-      list: [true],
+    t.field('weaknesses', {
+      type: list(nonNull('String')),
       description: 'This pokemon has weakness to these attack types',
       resolve: batchResolver(async (sources) => {
         const types = await fetchPokemonRelation(
@@ -140,8 +135,7 @@ export const Pokemon = objectType({
       }),
     });
     t.field('attacks', {
-      list: [true],
-      type: 'PokemonAttack',
+      type: list(nonNull('PokemonAttack')),
       description: 'The attacks this species can make',
       resolve: batchResolver(async (sources) => {
         const attacks = await fetchPokemonRelation(
@@ -220,9 +214,7 @@ export const pokemonsQuery = queryField((t) =>
 );
 
 export const pokemonTypesQuery = queryField('pokemonTypes', {
-  type: 'String',
-  list: true,
-  nullable: false,
+  type: nonNull(list(nonNull('String'))),
   resolve() {
     return fetchAllTypes();
   },
@@ -231,21 +223,24 @@ export const pokemonTypesQuery = queryField('pokemonTypes', {
 export const ToggleFavoriteInput = inputObjectType({
   name: 'ToggleFavoriteInput',
   definition(t) {
-    t.id('pokemonId', { required: true });
-  }
+    t.nonNull.id('pokemonId');
+  },
 });
 
 export const ToggleFavoritePayload = objectType({
   name: 'ToggleFavoritePayload',
   definition(t) {
-    t.field('pokemon', { type: 'Pokemon', nullable: false, description: 'Updated pokemon' })
-  }
-})
+    t.nonNull.field('pokemon', {
+      type: 'Pokemon',
+      description: 'Updated pokemon',
+    });
+  },
+});
 
 export const toggleFavoriteMutation = mutationField('toggleFavorite', {
   type: 'ToggleFavoritePayload',
   args: {
-    input: arg({ type: 'ToggleFavoriteInput', required: true })
+    input: nonNull(arg({ type: 'ToggleFavoriteInput' })),
   },
   resolve(root, { input: { pokemonId } }) {
     const { id, type } = fromGlobalId(pokemonId);
@@ -253,5 +248,5 @@ export const toggleFavoriteMutation = mutationField('toggleFavorite', {
       throw new Error('Invalid cursor');
     }
     return toggleFavorite(id);
-  }
+  },
 });

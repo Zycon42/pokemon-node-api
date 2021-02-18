@@ -5,10 +5,15 @@
 
 import { PokemonAttack } from './pokemon/models/PokemonAttack';
 import { Pokemon } from './pokemon/models/Pokemon';
-import { core, connectionPluginCore } from '@nexus/schema';
+import { core, connectionPluginCore } from 'nexus';
 
 declare global {
   interface NexusGenCustomOutputMethods<TypeName extends string> {
+    /**
+     * Adds a Relay-style connection to the type, with numerous options for configuration
+     *
+     * @see https://nexusjs.org/docs/plugins/connection
+     */
     connectionField<FieldName extends string>(
       fieldName: FieldName,
       config: connectionPluginCore.ConnectionFieldConfig<TypeName, FieldName>,
@@ -37,7 +42,7 @@ export interface NexusGenScalars {
   ID: string;
 }
 
-export interface NexusGenRootTypes {
+export interface NexusGenObjects {
   Mutation: {};
   PageInfo: {
     // root type
@@ -64,23 +69,22 @@ export interface NexusGenRootTypes {
     edges?: Array<NexusGenRootTypes['PokemonEdge'] | null> | null; // [PokemonEdge]
     nodes?: Array<NexusGenRootTypes['Pokemon'] | null> | null; // [Pokemon]
     pageInfo: NexusGenRootTypes['PageInfo']; // PageInfo!
-    totalCount?: number | null; // Int
   };
   ToggleFavoritePayload: {
     // root type
     pokemon: NexusGenRootTypes['Pokemon']; // Pokemon!
   };
+}
+
+export interface NexusGenInterfaces {
   Node: NexusGenRootTypes['Pokemon'] | NexusGenRootTypes['PokemonAttack'];
 }
 
-export interface NexusGenAllTypes extends NexusGenRootTypes {
-  ToggleFavoriteInput: NexusGenInputs['ToggleFavoriteInput'];
-  String: NexusGenScalars['String'];
-  Int: NexusGenScalars['Int'];
-  Float: NexusGenScalars['Float'];
-  Boolean: NexusGenScalars['Boolean'];
-  ID: NexusGenScalars['ID'];
-}
+export interface NexusGenUnions {}
+
+export type NexusGenRootTypes = NexusGenInterfaces & NexusGenObjects;
+
+export type NexusGenAllTypes = NexusGenRootTypes & NexusGenScalars;
 
 export interface NexusGenFieldTypes {
   Mutation: {
@@ -133,8 +137,8 @@ export interface NexusGenFieldTypes {
   Query: {
     // field return type
     pokemon: NexusGenRootTypes['Pokemon'] | null; // Pokemon
-    pokemons: NexusGenRootTypes['QueryPokemons_Connection'] | null; // QueryPokemons_Connection
     pokemonTypes: string[]; // [String!]!
+    pokemons: NexusGenRootTypes['QueryPokemons_Connection'] | null; // QueryPokemons_Connection
   };
   QueryPokemons_Connection: {
     // field return type
@@ -204,8 +208,8 @@ export interface NexusGenFieldTypeNames {
   Query: {
     // field return type name
     pokemon: 'Pokemon';
-    pokemons: 'QueryPokemons_Connection';
     pokemonTypes: 'String';
+    pokemons: 'QueryPokemons_Connection';
   };
   QueryPokemons_Connection: {
     // field return type name
@@ -249,42 +253,49 @@ export interface NexusGenArgTypes {
   };
 }
 
-export interface NexusGenAbstractResolveReturnTypes {
+export interface NexusGenAbstractTypeMembers {
   Node: 'Pokemon' | 'PokemonAttack';
 }
 
-export interface NexusGenInheritedFields {}
+export interface NexusGenTypeInterfaces {
+  Pokemon: 'Node';
+  PokemonAttack: 'Node';
+}
 
-export type NexusGenObjectNames =
-  | 'Mutation'
-  | 'PageInfo'
-  | 'PhysicalQuantity'
-  | 'Pokemon'
-  | 'PokemonAttack'
-  | 'PokemonEdge'
-  | 'Query'
-  | 'QueryPokemons_Connection'
-  | 'ToggleFavoritePayload';
+export type NexusGenObjectNames = keyof NexusGenObjects;
 
-export type NexusGenInputNames = 'ToggleFavoriteInput';
+export type NexusGenInputNames = keyof NexusGenInputs;
 
 export type NexusGenEnumNames = never;
 
-export type NexusGenInterfaceNames = 'Node';
+export type NexusGenInterfaceNames = keyof NexusGenInterfaces;
 
-export type NexusGenScalarNames = 'Boolean' | 'Float' | 'ID' | 'Int' | 'String';
+export type NexusGenScalarNames = keyof NexusGenScalars;
 
 export type NexusGenUnionNames = never;
+
+export type NexusGenObjectsUsingAbstractStrategyIsTypeOf = never;
+
+export type NexusGenAbstractsUsingStrategyResolveType = 'Node';
+
+export type NexusGenFeaturesConfig = {
+  abstractTypeStrategies: {
+    isTypeOf: false;
+    resolveType: true;
+    __typename: false;
+  };
+};
 
 export interface NexusGenTypes {
   context: any;
   inputTypes: NexusGenInputs;
   rootTypes: NexusGenRootTypes;
+  inputTypeShapes: NexusGenInputs & NexusGenEnums & NexusGenScalars;
   argTypes: NexusGenArgTypes;
   fieldTypes: NexusGenFieldTypes;
   fieldTypeNames: NexusGenFieldTypeNames;
   allTypes: NexusGenAllTypes;
-  inheritedFields: NexusGenInheritedFields;
+  typeInterfaces: NexusGenTypeInterfaces;
   objectNames: NexusGenObjectNames;
   inputNames: NexusGenInputNames;
   enumNames: NexusGenEnumNames;
@@ -305,7 +316,10 @@ export interface NexusGenTypes {
     | NexusGenTypes['allInputTypes']
     | NexusGenTypes['allOutputTypes'];
   abstractTypes: NexusGenTypes['interfaceNames'] | NexusGenTypes['unionNames'];
-  abstractResolveReturn: NexusGenAbstractResolveReturnTypes;
+  abstractTypeMembers: NexusGenAbstractTypeMembers;
+  objectsUsingAbstractStrategyIsTypeOf: NexusGenObjectsUsingAbstractStrategyIsTypeOf;
+  abstractsUsingStrategyResolveType: NexusGenAbstractsUsingStrategyResolveType;
+  features: NexusGenFeaturesConfig;
 }
 
 declare global {
@@ -314,5 +328,10 @@ declare global {
     TypeName extends string,
     FieldName extends string
   > {}
+  interface NexusGenPluginInputFieldConfig<
+    TypeName extends string,
+    FieldName extends string
+  > {}
   interface NexusGenPluginSchemaConfig {}
+  interface NexusGenPluginArgConfig {}
 }

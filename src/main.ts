@@ -1,7 +1,7 @@
 /// <reference path="./schema-types.d.ts" />
 import './load-config';
 import path from 'path';
-import { makeSchema, connectionPlugin } from '@nexus/schema';
+import { makeSchema, connectionPlugin } from 'nexus';
 import mercurius from 'mercurius';
 import app from './app';
 import { configureDb } from './config/db';
@@ -24,8 +24,11 @@ async function bootstrap() {
     },
     prettierConfig: path.join(__dirname, '../.prettierrc'),
     plugins: [
-      connectionPlugin({ includeNodesField: true, disableBackwardPagination: true }),
-    ]
+      connectionPlugin({
+        includeNodesField: true,
+        disableBackwardPagination: true,
+      }),
+    ],
   });
   app.register(mercurius, { schema, graphiql: 'playground' });
 

@@ -149,6 +149,7 @@ type PokemonEdge {
 
 type Query {
   pokemon(code: String, id: ID, name: String): Pokemon
+  pokemonTypes: [String!]!
   pokemons(
     """
     Returns the elements in the list that come after the specified cursor
@@ -175,7 +176,6 @@ type Query {
     """
     type: String
   ): QueryPokemons_Connection
-  pokemonTypes: [String!]!
 }
 
 type QueryPokemons_Connection {
